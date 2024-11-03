@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чат-бот Подросток AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+        header {
+            background: linear-gradient(145deg, #4bff78, #4bd5ff);
+            color: white; 
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+        #chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column; 
+        }
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            flex-grow: 1;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .user {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+        }
+        .bot {
+        background-color: #cce5ff; /* Светло-синий цвет */
+        align-self: flex-start;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #send-button {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #61daff, #7bfe9c);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        #send-button:hover {
+            background: linear-gradient(135deg,#7bfe9c, #61daff);
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            background: linear-gradient(55deg, #4bd5ff, #4bff78);
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 1em;
+            border-radius: 6px;
+        }
+        .suggestions {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e2e3e5;
+            border-radius: 5px;
+        }
+
+        .suggestion-button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .suggestion-button:hover {
+            background-color: #0056b3;
+        }
+        #contact-links a {
+        margin: 0 10px;
+        text-decoration: none;
+        color: #007bff;
+        }
+        #contact-links a:hover {
+            text-decoration: underline;
+        }
+        
+        #about, #contact {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+<body>
+    <header>
+        <h1>Чат-бот Подросток AI</h1>
+    </header>
+
+    <nav>
+        <a href="#Chat" onclick="showSection('Chat')">Чат</a>
+        <a href="#About" onclick="showSection('About')">О нас</a>
+        <a href="#Contact" onclick="showSection('Contact')">Контакты</a>
+        <a href="#Resources" onclick="showSection('Resources')">Ресурсы</a>
+    </nav>
+
+    <main>
+        <section id="Chat">
+            <div id="chat-container">
+                <div id="messages"></div>
+                <div id="input-container">
+                    <input type="text" id="user-input" placeholder="Введите ваше сообщение..." />
+                    <button id="send-button" onclick="sendMessage()">Отправить</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="About">
+            <h2>О нас</h2>
+            <p>Мы - команда разработчиков, стремящихся создать полезные инструменты для подростков. Наш чат-бот предназначен для поддержки и помощи в трудные времена.</p>
+        </section>
+
+        <section id="Contact">
+            <h2>Контакты</h2>
+            <p>Вы можете связаться с нами по электронной почте: support@example.com</p>
+        </section>
+
+        <section id="Resources">
+            <h2>Ресурсы</h2>
+            <p>Вот некоторые полезные ресурсы:</p>
+            <ul>
+                <li><a href="https://www.mentalhealth.gov/" target="_blank">MentalHealth.gov</a> - Здесь вы найдете полезную информацию о психическом здоровье и советы по заботе о себе. Вы не одиноки в этом пути.</li>
+        <li><a href="https://www.nami.org/Home" target="_blank">NAMI (Национальная ассоциация по психическим заболеваниям)</a> - Организация, которая предлагает поддержку и ресурсы для людей и их семей, сталкивающихся с психическими заболеваниями. Они готовы помочь вам.</li>
+        <li><a href="https://www.suicidepreventionlifeline.org/" target="_blank">Национальная линия предотвращения самоубийств</a> - Если вам срочно нужна поддержка, здесь есть люди, готовые выслушать вас и помочь в трудную минуту. Вы не одни.</li>
+        <li><a href="https://www.betterhelp.com/" target="_blank">BetterHelp</a> - Удобная платформа для онлайн-консультаций с профессиональными терапевтами. Вы можете выбрать удобное время и формат общения.</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 AI-подросток. Все права защищены.</p>
+    </footer>
+
+<script>
+   const responses = {
+            "привет": ["Привет! Как я могу помочь?", "Здравствуйте! Чем могу помочь?", "Привет! Как дела?"],
+            "как дела": ["У меня всё хорошо, спасибо! А у вас?", "Все отлично, спасибо! Как у вас?"],
+            "что ты можешь": ["Я могу отвечать на ваши вопросы и поддерживать беседу.", "Я здесь, чтобы помочь вам!"],
+            "спасибо": ["Пожалуйста! Если у вас есть еще вопросы, спрашивайте.", "Не за что! Всегда рад помочь."],
+            "пока": ["До свидания! Хорошего дня!", "Пока! Надеюсь, скоро увидимся!"],
+            "погода": ["Какую погоду вы хотите узнать?", "Погода сегодня замечательная! А как у вас?"],
+            "как тебя зовут": ["Я просто чат-бот, но вы можете называть меня ИИ.", "Я ваш виртуальный помощник!"],
+            "расскажи анекдот": ["Почему программисты не любят природу? Потому что в ней слишком много ошибок!", "Почему кошка сидела на компьютере? Она хотела поймать мышь!"]
+        };
+
+        const empatheticResponses = {
+            "я чувствую грусть": ["Мне очень жаль слышать это. Вы не одиноки, и я здесь, чтобы поддержать вас.", "Важно делиться своими чувствами. Как я могу помочь вам сейчас?"],
+            "я чувствую депрессию": ["Это очень тяжело. Я здесь, чтобы выслушать вас. Что вас беспокоит?", "Пожалуйста, знайте, что ваши чувства важны. Хотите поговорить об этом?"],
+            "мне плохо": ["Мне очень жаль, что вы так себя чувствуете. Вы хотите поделиться, что именно вас беспокоит?", "Вы заслуживаете поддержки. Как я могу помочь вам в этот момент?"],
+            "мне грустно": ["Грусть — это нормальное чувство. Вы хотите поговорить о том, что вас беспокоит?", "Я понимаю, что это может быть сложно. Давайте поговорим об этом."]
+        };
+
+        // Эпохи
+        let currentEpoch = "поддержка"; // Начальная эпоха
+
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            // Отображение сообщения пользователя
+            displayMessage(userInput, 'user');
+            document.getElementById("user-input").value =
+            '';
+
+            // Логика обработки сообщений
+            let botResponse = getBotResponse(userInput.toLowerCase());
+            displayMessage(botResponse, 'bot');
+
+            // Регулярная проверка состояния
+            if (currentEpoch === "поддержка") {
+                setTimeout(() => {
+                    displayMessage("Как вы себя чувствуете сейчас?", 'bot');
+                }, 5000); // Проверка через 5 секунд
+            }
+        }
+
+        function getBotResponse(input) {
+            // Проверка на эмпатические выражения
+            for (const [key, responsesArray] of Object.entries(empatheticResponses)) {
+                if (input.includes(key)) {
+                    currentEpoch = "поддержка"; // Сохраняем эпоху поддержки
+                    return getRandomResponse(responsesArray);
+                }
+            }
+
+            // Проверка на общие запросы
+            for (const [key, responsesArray] of Object.entries(responses)) {
+                if (input.includes(key)) {
+                    // Определяем эпоху в зависимости от запроса
+                    if (key === "расскажи анекдот") {
+                        currentEpoch = "развлечение";
+                    } else if (key === "погода") {
+                        currentEpoch = "информация";
+                    } else {
+                        currentEpoch = "позитив";
+                    }
+                    return getRandomResponse(responsesArray);
+                }
+            }
+
+            return "Извините, я не совсем понял. Можете рассказать больше?";
+        }
+
+        function getRandomResponse(responsesArray) {
+            return responsesArray[Math.floor(Math.random() * responsesArray.length)];
+        }
+
+        function displayMessage(message, sender) {
+            const chatContainer = document.getElementById("chat-container");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = message;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Прокрутка вниз
+        }
+</script>
+    
+</body>
+</html>
